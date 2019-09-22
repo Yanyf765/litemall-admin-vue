@@ -12,7 +12,8 @@ export const constantRouterMap = [
     hidden: true,
     children: [
       {
-        path: '/redirect'
+        path: '/redirect/:path*',
+        component: () => import('@/views/redirect/index')
       }
     ]
   },
@@ -25,9 +26,22 @@ export const constantRouterMap = [
     path: '/index',
     component: () => import('@/views/index/index'),
     hidden: true
+  },
+  {
+    path: '',
+    component: layout,
+    redirect: 'dashboard',
+    children: [
+      {
+        path: 'dashboard',
+        component: () => import('@/views/dashboard/index'),
+        name: 'Dashboard',
+        meta: { title: '首页', icon: 'dashboard', noCache: true }
+      }
+    ]
   }
 ]
-
+export const asyncRouterMap = []
 export default new Router({
   routes: constantRouterMap
 })
