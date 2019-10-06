@@ -41,7 +41,31 @@ export const constantRouterMap = [
     ]
   }
 ]
-export const asyncRouterMap = []
+export const asyncRouterMap = [
+  {
+    path: '/user',
+    component: layout,
+    redirect: 'noredirect',
+    alwaysShow: true,
+    name: 'userManage',
+    meta: {
+      title: '用户管理',
+      icon: 'chart'
+    },
+    children: [
+      {
+        path: 'user',
+        component: () => import('@/views/user/user'),
+        name: 'user',
+        meta: {
+          perms: ['GET /admin/user/list'],
+          title: '会员管理',
+          noCache: true
+        }
+      }
+    ]
+  }
+]
 export default new Router({
   routes: constantRouterMap
 })
