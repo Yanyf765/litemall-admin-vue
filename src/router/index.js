@@ -62,6 +62,78 @@ export const asyncRouterMap = [
           title: '会员管理',
           noCache: true
         }
+      },
+      {
+        path: 'address',
+        component: () => import('@/views/user/address'),
+        name: 'address',
+        meta: {
+          perms: ['GET /admin/address/list'],
+          title: '收货地址',
+          noCache: true
+        }
+      },
+      {
+        path: 'collect',
+        component: () => import('@/views/user/collect'),
+        name: 'collect',
+        meta: {
+          perms: ['GET /admin/collect/list'],
+          title: '会员收藏',
+          noCache: true
+        }
+      },
+      {
+        path: 'footprint',
+        component: () => import('@/views/user/footprint'),
+        name: 'footprint',
+        meta: {
+          perms: ['GET /admin/footprint/list'],
+          title: '会员足迹',
+          noCache: true
+        }
+      },
+      {
+        path: 'history',
+        component: () => import('@/views/user/history'),
+        name: 'history',
+        meta: {
+          perms: ['GET /admin/history/list'],
+          title: '搜索历史',
+          noCache: true
+        }
+      },
+      {
+        path: 'feedback',
+        component: () => import('@/views/user/feedback'),
+        name: 'feedback',
+        meta: {
+          perms: ['GET /admin/feedback/list'],
+          title: '意见反馈',
+          noCache: true
+        }
+      }
+    ]
+  },
+  {
+    path: '/mall',
+    component: layout,
+    redirect: 'noredirect',
+    alwaysShow: true,
+    name: 'mallManage',
+    meta: {
+      title: '商场管理',
+      icon: 'chart'
+    },
+    children: [
+      {
+        path: 'region',
+        component: () => import('@/views/mall/region'),
+        name: 'region',
+        meta: {
+          title: '行政区域',
+          noCache: true
+        }
       }
     ]
   }
