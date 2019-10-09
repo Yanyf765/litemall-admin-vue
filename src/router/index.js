@@ -140,6 +140,17 @@ export const asyncRouterMap = [
         component: () => import('@/views/mall/brand'),
         name: 'brand',
         meta: {
+          perms: ['GET /admin/brand/list', 'POST /admin/brand/create', 'GET /admin/brand/read', 'POST /admin/brand/update', 'POST /admin/brand/delete'],
+          title: '品牌制造商',
+          noCache: true
+        }
+      },
+      {
+        path: 'category',
+        component: () => import('@/views/mall/category'),
+        name: 'category',
+        meta: {
+          perms: ['GET /admin/category/list', 'POST /admin/category/create', 'GET /admin/category/read', 'POST /admin/category/update', 'POST /admin/category/delete'],
           title: '品牌制造商',
           noCache: true
         }
