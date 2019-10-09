@@ -134,6 +134,15 @@ export const asyncRouterMap = [
           title: '行政区域',
           noCache: true
         }
+      },
+      {
+        path: 'brand',
+        component: () => import('@/views/mall/brand'),
+        name: 'brand',
+        meta: {
+          title: '品牌制造商',
+          noCache: true
+        }
       }
     ]
   }
