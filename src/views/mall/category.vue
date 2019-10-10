@@ -29,19 +29,73 @@
             <el-tag :type="scope.row.level === 'L1' ? 'primary' : 'info'">{{scope.row.level === 'L1' ? '一级类目' : '二级类目'}}</el-tag>
           </template>
       </el-table-column>
+
+      <el-table-column align="center" label="操作" width="200" class-name="small-padding fixed-width">
+        <template slot-scope="scope">
+          <el-button v-permission="['POST /admin/category/update']" type="primary" size="mini" @click="handleUpdate(scope.row)">编辑</el-button>
+          <el-button v-permission="['POST /admin/category/delete']" type="danger" size="mini" @click="handleDelete(scope.row)">删除</el-button>
+        </template>
+      </el-table-column>
     </el-table>
+
+    <!-- 添加或者修改对话框 -->
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
+      <el-form ref="dataForm" :rules="rules" :model="dataForm" status-icon label-position="left" label-width="100px" style="width: 400px;margin-left: 50px; ">
+        <el-form-item label="类目名称" prop="name">
+          <el-input v-model="dataForm.name"/>
+        </el-form-item>
+        <el-form-item label="关键字" prop="keywords">
+          <el-input v-model="dataForm.keywords"/>
+        </el-form-item>
+        <el-form-item label="级别" prop="level">
+          <el-select v-model="dataForm.level" @change="onLevelChange">
+            <el-option label="一级类目" value="L1"/>
+            <el-option label="二级类目" value="L2"/>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="服类目" prop="pid">
+          <el-select v-model="dataForm.pid">
+            <el-option v-for="item in catL1" :key="item.value" :label="item.label" :value="item.value"/>
+          </el-select>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { listCategory } from '@/api/category'
+import { listCategory,listCatL1 } from '@/api/category'
 export default {
   name: 'category',
   data () {
     return {
       listLoading: false,
-      list: []
+      list: [],
+      textMap: {
+        update: '编辑',
+        create: '创建'
+      },
+      dialogStatus: '',
+      dialogFormVisible: false,
+      dataForm: {
+        id: undefined,
+        name: '',
+        keywords: '',
+        level: '',
+        pid: 0,
+        desc: '',
+        iconUrl: '',
+        picUrl: ''
+      },
+      rules: {
+        name: [{required: true, message: '类目名不能为空', trigger: 'blur'}]
+      },
+      catL1: {}
     }
+  },
+  created () {
+    this.getList()
+    this.getCatL1()
   },
   methods: {
     handleCreate () {
@@ -57,6 +111,26 @@ export default {
           this.list = []
           this.listLoading = false
         })
+    },
+    getCatL1 () {
+      listCatL1().then(response => {
+        this.catL1 = response.data.data.list
+      })
+    },
+    handleUpdate (row) {
+      this.dataForm = Object.assign({}, row)
+      this.dialogStatus = 'update'
+      this.dialogFormVisible = true
+      this.$nextTick(() => {
+        this.$refs['dataForm'].clearValidate()
+      })
+    },
+    handleDelete () {
+    },
+    onLevelChange: function (value) {
+      if (value === 'L1') {
+        this.dataForm.level = 0
+      }
     }
   }
 }
