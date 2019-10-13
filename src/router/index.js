@@ -154,6 +154,36 @@ export const asyncRouterMap = [
           title: '品牌制造商',
           noCache: true
         }
+      },
+      {
+        path: 'order',
+        component: () => import('@/views/mall/order'),
+        name: 'order',
+        meta: {
+          perms: ['GET /admin/order/list', 'GET /admin/order/detail', 'POST /admin/order/ordership', 'POST /admin/order/orderrefund', 'POST /admin/order/orderreply'],
+          title: '订单管理',
+          noCache: true
+        }
+      },
+      {
+        path: 'issue',
+        component: () => import('@/views/mall/issue'),
+        name: 'issue',
+        meta: {
+          perms: ['GET /admin/issue/list', 'POST /admin/issue/create', 'GET /admin/issue/read', 'POST /admin/issue/update', 'POST /admin/issue/delete'],
+          title: '通用问题',
+          noCache: true
+        }
+      },
+      {
+        path: 'keyword',
+        component: () => import('@/views/mall/keyword'),
+        name: 'keyword',
+        meta: {
+          perms: ['GET /admin/keyword/list', 'POST /admin/keyword/create', 'GET /admin/keyword/read', 'POST /admin/keyword/update', 'POST /admin/keyword/delete'],
+          title: '关键词',
+          noCache: true
+        }
       }
     ]
   }

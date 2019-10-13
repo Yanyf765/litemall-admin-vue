@@ -53,22 +53,61 @@
             <el-option label="二级类目" value="L2"/>
           </el-select>
         </el-form-item>
-        <el-form-item label="服类目" prop="pid">
+        <el-form-item label="父类目" v-if="dataForm.level === 'L2'" prop="pid">
           <el-select v-model="dataForm.pid">
-            <el-option v-for="item in catL1" :key="item.value" :label="item.label" :value="item.value"/>
+            <el-option v-for="item in catL1" :key="item.value" :label="item.value" :value="item.value"/>
           </el-select>
         </el-form-item>
+
+        <el-form-item label="类目图标" prop="iconUrl">
+          <el-upload
+            :headers="headers"
+            :action="uploadPath"
+            :show-file-list="false"
+            :on-success="uploadIconUrl"
+            class="avatar-uploader"
+            accept=".jpg,.png,.jepg,.gif">
+            <img v-if="dataForm.iconUrl" :src="dataForm.iconUrl" class="avatar">
+            <i v-else class="el-icon-plus avatar-uploader-icon"/>
+          </el-upload>
+        </el-form-item>
+
+        <el-form-item label="类目图片" prop="picUrl">
+          <el-upload
+            :headers="headers"
+            :action="uploadPath"
+            :show-file-list="false"
+            :on-success="uploadPicUrl"
+            class="avatar-uploader"
+            accept=".jpg,.png,.jepg,.gif">
+            <img v-if="dataForm.picUrl" :src="dataForm.picUrl" class="avatar">
+            <i v-else class="el-icon-plus avatar-uploader-icon"/>
+          </el-upload>
+        </el-form-item>
+
+        <el-form-item label="类目简介" prop="desc">
+          <el-input v-model="dataForm.desc"/>
+        </el-form-item>
       </el-form>
+
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取消</el-button>
+        <el-button v-if="dialogStatus == 'create'" type="primary" @click="createData">确定</el-button>
+        <el-button v-else type="primary" @click="updateData">确定</el-button>
+      </div>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { listCategory,listCatL1 } from '@/api/category'
+import {createCategory, listCategory, listCatL1, updateCategory, deleteCategory} from '@/api/category'
+import { getToken } from '@/utils/auth'
+import { uploadPath } from '@/api/storage'
 export default {
   name: 'category',
   data () {
     return {
+      uploadPath,
       listLoading: false,
       list: [],
       textMap: {
@@ -81,7 +120,7 @@ export default {
         id: undefined,
         name: '',
         keywords: '',
-        level: '',
+        level: 'L2',
         pid: 0,
         desc: '',
         iconUrl: '',
@@ -93,13 +132,80 @@ export default {
       catL1: {}
     }
   },
+  computed: {
+    headers () {
+      return {
+        'X-Litemall-Admin-Token': getToken()
+      }
+    }
+  },
   created () {
     this.getList()
     this.getCatL1()
   },
   methods: {
+    createData () {
+      this.$refs['dataForm'].validate(valid => {
+        if (valid) {
+          createCategory(this.dataForm).then(response => {
+            this.getList()
+            // 更新L1目录
+            this.getCatL1()
+            this.dialogFormVisible = false
+            this.$notify.success({
+              title: '成功',
+              message: '创建成功'
+            })
+          }).catch(response => {
+            this.$notify.error({
+              title: '失败',
+              message: response.data.errmsg
+            })
+          })
+        }
+      })
+    },
+    updateData () {
+      this.$refs['dataForm'].validate(valid => {
+        if (valid) {
+          updateCategory(this.dataForm).then(
+            () => {
+              this.getList()
+              // 更新目录
+              this.getCatL1()
+              this.dialogFormVisible = false
+              this.$notify.success({
+                title: '成功',
+                message: '更新成功'
+              })
+            }).catch(response => {
+            this.$notify.error({
+              title: '失败',
+              message: response.data.errmsg
+            })
+          })
+        }
+      })
+    },
+    resetForm () {
+      this.dataForm = {
+        id: undefined,
+        name: '',
+        keywords: '',
+        level: 'L2',
+        pid: 0,
+        desc: '',
+        iconUrl: '',
+        picUrl: ''
+      }
+    },
     handleCreate () {
-
+      this.resetForm()
+      this.dialogStatus = 'create'
+      this.dialogFormVisible = true
+      this.$nextTick(() => {
+        this.$refs['dataForm'].clearValidate()
+      })
     },
     getList () {
       this.listLoading = true
@@ -125,12 +231,32 @@ export default {
         this.$refs['dataForm'].clearValidate()
       })
     },
-    handleDelete () {
+    handleDelete (row) {
+      deleteCategory(row).then(response => {
+        this.getList()
+        // 更新L1目录
+        this.getCatL1()
+        this.$notify.success({
+          title: '成功',
+          message: '删除成功'
+        })
+      }).catch(response => {
+        this.$notify.error({
+          title: '失败',
+          message: response.data.errmsg
+        })
+      })
     },
     onLevelChange: function (value) {
       if (value === 'L1') {
-        this.dataForm.level = 0
+        this.dataForm.pid = 0
       }
+    },
+    uploadIconUrl: function (response) {
+      this.dataForm.iconUrl = response.data.url
+    },
+    uploadPicUrl: function (response) {
+      this.dataForm.picUrl = response.data.url
     }
   }
 }
@@ -139,5 +265,28 @@ export default {
 <style scoped>
 .filter-item{
   margin-left: 100px;
+}
+.avatar-uploader .el-upload {
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.avatar-uploader {
+  border-color: #20a0ff;
+}
+.avatar-uploader-icon{
+  font-size: 28px;
+  color: #8c939d;
+  width: 120px;
+  height: 120px;
+  line-height: 120px;
+  text-align: center;
+}
+.avatar{
+  width: 145px;
+  height: 145px;
+  display: block;
 }
 </style>
