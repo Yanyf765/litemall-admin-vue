@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import {listKeyWord}
+import {listKeyWord} from '@/api/keyword'
 export default {
   name: 'keyword',
   data () {
@@ -65,11 +65,20 @@ export default {
       downloadLoading: false
     }
   },
+  created () {
+    this.getList()
+  },
   methods: {
     getList () {
       this.listLoading = true
       listKeyWord(this.listQuery).then(response => {
-
+        this.list = response.data.data.list
+        this.total = response.data.data.total
+        this.listLoading = false
+      }).catch(() => {
+        this.list = []
+        this.total = 0
+        this.listLoading = false
       })
     },
     handleFilter () {
