@@ -20,7 +20,6 @@ function hasPermission (perms, route) {
  */
 function filterAsyncRouter (routes, perms) {
   const res = []
-
   routes.forEach(route => {
     const tmp = { ...route }
     if (tmp.children) {
@@ -34,7 +33,6 @@ function filterAsyncRouter (routes, perms) {
       }
     }
   })
-
   return res
 }
 

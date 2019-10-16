@@ -26,6 +26,14 @@ export function readKeyword (data) {
 
 export function updateKeyword (data) {
   return request({
+    url: '/keyword/update',
+    method: 'post',
+    data
+  })
+}
+
+export function deleteKeyword (data) {
+  return request({
     url: '/keyword/delete',
     method: 'post',
     data
