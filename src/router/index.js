@@ -186,6 +186,29 @@ export const asyncRouterMap = [
         }
       }
     ]
+  },
+  {
+    path: '/goods',
+    component: layout,
+    redirect: 'noredirect',
+    alwaysShow: true,
+    name: 'goodsManage',
+    meta: {
+      title: '商品管理',
+      icon: 'chart'
+    },
+    children: [
+      {
+        path: 'list',
+        component: () => import('@/views/goods/list'),
+        name: 'goodsList',
+        meta: {
+          perms: ['GET /admin/goods/list', 'POST /admin/goods/delete'],
+          title: '商品列表',
+          noCache: true
+        }
+      }
+    ]
   }
 ]
 export default new Router({
