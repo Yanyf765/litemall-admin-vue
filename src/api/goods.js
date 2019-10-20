@@ -16,7 +16,7 @@ export function deleteGoods (data) {
   })
 }
 
-export function pulishGoods (data) {
+export function publishGoods (data) {
   return request({
     url: '/goods/create',
     method: 'post',

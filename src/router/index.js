@@ -207,6 +207,26 @@ export const asyncRouterMap = [
           title: '商品列表',
           noCache: true
         }
+      },
+      {
+        path: 'create',
+        component: () => import('@/views/goods/create'),
+        name: 'goodsEdit',
+        meta: {
+          perms: ['GET /admin/goods/create'],
+          title: '商品上架',
+          noCache: true
+        }
+      },
+      {
+        path: 'test',
+        component: () => import('@/views/goods/test'),
+        name: 'testList',
+        meta: {
+          perms: ['GET /admin/goods/test'],
+          title: '测试功能',
+          noCache: true
+        }
       }
     ]
   }
