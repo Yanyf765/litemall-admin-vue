@@ -211,12 +211,23 @@ export const asyncRouterMap = [
       {
         path: 'create',
         component: () => import('@/views/goods/create'),
-        name: 'goodsEdit',
+        name: 'goodsCreate',
         meta: {
-          perms: ['GET /admin/goods/create'],
+          perms: ['POST /admin/goods/create'],
           title: '商品上架',
           noCache: true
         }
+      },
+      {
+        path: 'edit',
+        component: () => import('@/views/goods/edit'),
+        name: 'goodsEdit',
+        meta: {
+          perms: ['GET /admin/goods/detail', 'POST /admin/goods/update', 'POST /admin/goods/catAndBrand'],
+          title: '商品编辑',
+          noCache: true
+        },
+        hidden: true
       },
       {
         path: 'test',
