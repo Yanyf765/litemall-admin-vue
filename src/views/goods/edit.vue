@@ -5,7 +5,7 @@
     <h3>商品介绍</h3>
     <el-form ref="goods" :rules="rules" :model="goods" label-width="150px">
       <el-form-item label="商品编号" prop="goodsSn">
-        <el-input v-model="goods.goodsSn"/>
+        <el-input v-model="goods.goodsSn" style="font-size:14px;font-family:'Microsoft YaHei'"/>
       </el-form-item>
       <el-form-item label="商品名称" prop="name">
         <el-input v-model="goods.name"/>
@@ -53,19 +53,86 @@
       </el-form-item>
 
       <el-form-item label="宣传画廊">
+        <el-upload
+          :action="uploadPath"
+          :headers="headers"
+          :limit="5"
+          :file-list="galleryFileList"
+          :on-exceed="uploadOverrun"
+          :on-success="handleGalleryUrl"
+          :on-remove="handleRemove"
+          multiple
+          accept=".jpg,.jpeg,.png,.gif"
+          list-type="picture-card">
+          <i class="el-icon-plus"/>
+        </el-upload>
+      </el-form-item>
 
+      <el-form-item label="商品单位">
+        <el-input v-model="goods.unit" placeholder="件 / 个 / 盒"/>
+      </el-form-item>
+
+      <el-form-item label="关键字">
+        <el-tag v-for="tag in keywords" :key="tag" closable type="primary" @close="handleClose">
+          {{tag}}
+        </el-tag>
+        <el-input v-if="newKeywordVisible" ref="newKeywordInput" v-model="newKeyword" class="input-new-keyword" @keyup.enter.native="handleInputConfirm" @blur="handleInputConfirm"></el-input>
+        <el-button v-else class="button-new-keyword" type="primary" @click="showInput">+ 增加</el-button>
+      </el-form-item>
+
+      <el-form-item label="所属分类">
+        <el-cascader :options="categoryList" v-model="categoryIds" expand-trigger="hover" @change="handleCategoryChange"/>
+      </el-form-item>
+
+      <el-form-item label="所属品牌商">
+        <el-select v-model="goods.brandList">
+          <el-option v-for="item in brandList" :key="item.value" :label="item.label" :value="item.value"></el-option>
+        </el-select>
+      </el-form-item>
+
+      <el-form-item label="商品简介">
+        <el-input v-model="goods.brief" />
+      </el-form-item>
+
+      <el-form-item label="商品详细介绍">
+        <editor :init="editorInit" v-model="goods.detail" />
       </el-form-item>
     </el-form>
+  </el-card>
+
+  <el-card class="box-card">
+    <h3>商品规格</h3>
+    <el-button :plain="true" type="primary" @click="handleSpecificationShow">添加</el-button>
+
+    <el-table :data="specifications">
+      <el-table-column property="specification" label="规格名"/>
+      <el-table-column property="value" label="规格值">
+        <template slot-scope="scope">
+          <el-tag type="primary">
+            {{scope.row.value}}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <!--<el-table-column property="picUrl" label="规格图片">-->
+        <!--<template slot-scope="scope">-->
+          <!--<el-tag type="primary">-->
+            <!--{{ scope.row.value }}-->
+          <!--</el-tag>-->
+        <!--</template>-->
+      <!--</el-table-column>-->
+    </el-table>
   </el-card>
 </div>
 </template>
 
 <script>
-import {detailGoods} from '@/api/goods'
+import {detailGoods, listCatAndBrand} from '@/api/goods'
 import {createStorage, uploadPath} from '@/api/storage'
-
+import {getToken} from '@/utils/auth'
+import Editor from '@tinymce/tinymce-vue'
 export default {
   name: 'edit',
+  components: {Editor},
   data () {
     return {
       uploadPath,
@@ -110,7 +177,7 @@ export default {
           'searchreplace bold italic underline strikethrough alignleft aligncenter alignright outdent indent  blockquote undo redo removeformat subscript superscript code codesample',
           'hr bullist numlist link image charmap preview anchor pagebreak insertdatetime media table emoticons forecolor backcolor fullscreen'
         ],
-        images_upload_handler: function(blobInfo, success, failure) {
+        images_upload_handler: function (blobInfo, success, failure) {
           const formData = new FormData()
           formData.append('file', blobInfo.blob())
           createStorage(formData)
@@ -124,6 +191,13 @@ export default {
       }
     }
   },
+  computed: {
+    headers () {
+      return {
+        'X-Litemall-Admin-Token': getToken()
+      }
+    }
+  },
   created () {
     this.init()
   },
@@ -132,15 +206,40 @@ export default {
       if (this.$route.query.id == null) {
         return
       }
+
       const goodsId = this.$route.query.id
       detailGoods(goodsId).then(response => {
         this.goods = response.data.data.goods
-        this.specfications = response.data.data.specifications
+        this.specifications = response.data.data.specifications
         this.products = response.data.data.products
         this.attributes = response.data.data.attributes
+        this.categoryIds = response.data.data.categoryIds
+
+        this.galleryFileList = []
+        for (var i = 0; i < this.goods.gallery.length; i++) {
+          this.galleryFileList.push({
+            url: this.goods.gallery[i]
+          })
+        }
+        const keywords = response.data.data.goods.keywords
+        if (keywords !== null) {
+          this.keywords = keywords.split(',')
+        }
+      })
+
+      listCatAndBrand().then(response => {
+        this.categoryList = response.data.data.categoryList
+        this.brandList = response.data.data.brandList
       })
     },
-    uploadPicUrl () {}
+    uploadPicUrl () {},
+    handleRemove () {},
+    uploadOverrun () {},
+    handleGalleryUrl () {},
+    handleClose () {},
+    showInput () {},
+    handleCategoryChange () {},
+    handleSpecificationShow () {}
   }
 }
 </script>
