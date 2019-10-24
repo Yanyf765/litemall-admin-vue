@@ -113,15 +113,137 @@
           </el-tag>
         </template>
       </el-table-column>
-      <!--<el-table-column property="picUrl" label="规格图片">-->
-        <!--<template slot-scope="scope">-->
-          <!--<el-tag type="primary">-->
-            <!--{{ scope.row.value }}-->
-          <!--</el-tag>-->
-        <!--</template>-->
-      <!--</el-table-column>-->
+      <el-table-column property="picUrl" label="规格图片">
+        <template slot-scope="scope">
+          <img v-if="scope.row.picUrl" :src="scope.row.picUrl">
+        </template>
+      </el-table-column>
+      <el-table-column align="center" label="操作" width="250" class-name="small-padding fixed-width">
+        <template slot-scope="scope">
+          <el-button type="danger" size="mini" @click="handleSpecificationDelete(scope.row)">删除</el-button>
+        </template>
+      </el-table-column>
     </el-table>
+
+    <el-dialog :visible.sync="specVisiable" title="设置规格">
+      <el-form ref="specForm" :rules="rules" :model="specForm" status-icon label-position="left" label-width="100px" style="width: 400px; margin-left: 50px">
+        <el-form-item label="规格名" prop="specification">
+          <el-input v-model="specForm.specification"/>
+        </el-form-item>
+        <el-form-item label="规格值" prop="value">
+          <el-input v-model="specForm.value" />
+        </el-form-item>
+        <el-form-item label="规格图片" prop="picUrl">
+          <el-upload
+            :header="headers"
+            :action="uploadPath"
+            :show-file-list="false"
+            :on-success="uploadPicUrl"
+            class="avatar-uploader"
+            accept=".jpg,.jpeg,.png,.gif">
+            <img v-if="specForm.picUrl" :src="specForm.picUrl" class="avatar">
+            <i v-else class="el-icon-plus avatar-uploader-icon" />
+          </el-upload>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="specVisiable = false">取消</el-button>
+        <el-button type="primary" @click="handleSpecificationAdd">确定</el-button>
+      </div>
+    </el-dialog>
   </el-card>
+
+  <el-card class="box-card">
+    <h3>商品库存</h3>
+    <el-table :data="products">
+      <el-table-column property="value" label="货品规格">
+      <template slot-scope="scope">
+        <el-tag v-for="tag in scope.row.specifications" :key="tag">
+          {{tag}}
+        </el-tag>
+      </template>
+      </el-table-column>
+      <el-table-column property="price" width="100" label="货品售价" />
+      <el-table-column property="number" width="100" label="货品数量" />
+      <el-table-column property="url" width="100" label="货品图片" >
+        <template slot-scope="scope">
+          <img v-if="scope.row.url" :src="scope.row.url" width="40">
+        </template>
+      </el-table-column>
+      <el-table-column align="center" label="操作" width="100" class-name="small-padding fixed-width">
+        <template slot-scope="scope">
+          <el-button type="primary" size="mini" @click="handleProductShow(scope.row)">设置</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+
+    <el-dialog :visible.sync="productVisiable" title="设置货品">
+      <el-form ref="productForm" :model="productForm" status-icon label-position="left" label-width="100px" style="width: 400px;margin-left: 50px">
+        <el-form-item label="货品规格列" prop="specifications">
+          <el-tag v-for="tag in productForm.specifications" :key="tag">
+            {{tag}}
+          </el-tag>
+        </el-form-item>
+        <el-form-item label="货品售价" prop="price">
+          <el-input v-model="productForm.price"/>
+        </el-form-item>
+        <el-form-item label="货品数量" prop="number">
+          <el-input v-model="productForm.number"/>
+        </el-form-item>
+        <el-form-item label="货品图片" prop="url">
+          <el-upload
+            :headers="headers"
+            :action="uploadPath"
+            :show-file-list="false"
+            :on-success="uploadProductUrl"
+            class="avatar-uploader"
+            accept=".jpg,.jpeg,.png,.gif">
+            <img v-if="productForm.url" :src="productForm.url" class="avatar">
+            <i v-else class="el-icon-plus avatar-uploader-icon"/>
+          </el-upload>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="productVisiable = false">取消</el-button>
+        <el-button type="primary" @click="handleProductEdit">确认</el-button>
+      </div>
+    </el-dialog>
+  </el-card>
+
+  <el-card class="box-card">
+    <h3>商品参数</h3>
+    <el-button :plain="true" type="primary" @click="handleAttributeShow">添加</el-button>
+    <el-table :data="attributes">
+      <el-table-column property="attribute" label="商品参数名称" />
+      <el-table-column property="value" label="商品参值" />
+      <el-table-column align="center" label="操作" width="100" class-name="small-padding fixed-width">
+        <template slot-scope="scope">
+          <el-button type="danger" size="mini" @click="handleAttributeDelete(scope.row)">删除</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+
+    <el-dialog :visible.sync="attributeVisiable" title="设置商品参数">
+      <el-form ref="attributeForm" :model="attributeForm" status-icon label-position="left" label-width="100px" style="width: 400px;margin-left: 50px">
+        <el-form-item label="商品参数名称" prop="attribute">
+          <el-input v-model="attributeForm.attribute"/>
+        </el-form-item>
+
+        <el-form-item label="商品参数值" prop="value">
+          <el-input v-model="attributeForm.value"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="attributeVisiable = false">取消</el-button>
+        <el-button type="primary" @click="handleAttributeAdd">确定</el-button>
+      </div>
+    </el-dialog>
+  </el-card>
+
+  <div class="op-container">
+    <el-button @click="handleCancel">取消</el-button>
+    <el-button type="primary" @click="handleEdit">更新商品</el-button>
+  </div>
 </div>
 </template>
 
@@ -130,6 +252,8 @@ import {detailGoods, listCatAndBrand} from '@/api/goods'
 import {createStorage, uploadPath} from '@/api/storage'
 import {getToken} from '@/utils/auth'
 import Editor from '@tinymce/tinymce-vue'
+import {editGoods} from '../../api/goods'
+import {MessageBox} from 'element-ui'
 export default {
   name: 'edit',
   components: {Editor},
@@ -232,14 +356,126 @@ export default {
         this.brandList = response.data.data.brandList
       })
     },
-    uploadPicUrl () {},
-    handleRemove () {},
-    uploadOverrun () {},
-    handleGalleryUrl () {},
-    handleClose () {},
-    showInput () {},
-    handleCategoryChange () {},
-    handleSpecificationShow () {}
+    uploadPicUrl: function (response) {
+      this.goods.picUrl = response.data.url
+    },
+    handleRemove: function (file, fileList) {
+      for (var i = 0; i < this.goods.gallery.length; i++) {
+        // 这里存在两种情况
+        // 1. 如果所删除图片是刚刚上传的图片，那么图片地址是file.response.data.url
+        //    此时的file.url虽然存在，但是是本机地址，而不是远程地址。
+        // 2. 如果所删除图片是后台返回的已有图片，那么图片地址是file.url
+        var url
+        if (file.response === undefined) {
+          url = file.url
+        } else {
+          url = file.response.data.url
+        }
+
+        if (this.goods.gallery[i] === url) {
+          this.goods.gallery.splice(i, 1)
+        }
+      }
+    },
+    uploadOverrun: function () {
+      this.$message({
+        type: 'error',
+        message: '上传文件个数超过限制！最多上传5张图片'
+      })
+    },
+    handleGalleryUrl (response, file, fileList) {
+      if (response.error === 0) {
+        this.goods.gallery.push(response.data.url)
+      }
+    },
+    handleClose (tag) {
+      this.keywords.splice(this.keywords.indexOf(tag), 1)
+      this.goods.keywords = this.keywords.toString()
+    },
+    showInput () {
+      this.newKeywordVisible = true
+      this.$nextTick(() => {
+        this.$refs.newKeywordInput.$refs.input.focus()
+      })
+    },
+    handleCategoryChange (value) {
+      this.goods.categoryId = value[value.length - 1]
+    },
+    handleSpecificationShow () {
+      this.specForm = {specification: '', value: '', picUrl: ''}
+      this.specVisiable = true
+    },
+    handleSpecificationDelete (row) {
+      const index = this.specifications.indexOf(row)
+      this.specifications.splice(index, 1)
+      this.specToProduct()
+    },
+    handleSpecificationAdd () {
+      var index = this.specifications.length - 1
+      for (var i = 0; i < this.specifications.length; i++) {
+        const v = this.specifications[i]
+        if (v.specification === this.specForm.specification) {
+          index = i
+        }
+      }
+
+      this.specifications.splice(index + 1, 0, this.specForm)
+      this.specVisiable = false
+
+      this.specToProduct()
+    },
+    handleProductShow (row) {
+      this.productForm = Object.assign({}, row)
+      this.productVisiable = true
+    },
+    uploadProductUrl: function (response) {
+      this.productForm.url = response.data.url
+    },
+    handleProductEdit () {
+      for (var i = 0; i < this.products.length; i++) {
+        const v = this.products[i]
+        if (v.id === this.productForm.id) {
+          this.products.splice(i, 1, this.productForm)
+          break
+        }
+      }
+      this.productVisiable = false
+    },
+    handleAttributeShow () {
+      this.attributeForm = {}
+      this.attributeVisiable = true
+    },
+    handleAttributeDelete (row) {
+      const index = this.attributes.indexOf(row)
+      this.attributes.splice(index, 1)
+    },
+    handleAttributeAdd () {
+      this.attributes.unshift(this.attributeForm)
+      this.attributeVisiable = false
+    },
+    handleEdit: function () {
+      const finalGoods = {
+        goods: this.goods,
+        specifications: this.specifications,
+        products: this.products,
+        attributes: this.attributes
+      }
+      editGoods(finalGoods).then(response => {
+        this.$notify.success({
+          title: '成功',
+          message: '创建成功'
+        })
+        this.$router.push({path: '/goods/list'})
+      }).catch(response => {
+        MessageBox.alert('业务错误：' + response.data.errmsg, '警告', {
+          confirmButtonText: '确定',
+          type: 'error'
+        })
+      })
+    },
+    handleCancel: function () {
+      this.$router.push({path: '/goods/list'})
+    }
   }
 }
 </script>

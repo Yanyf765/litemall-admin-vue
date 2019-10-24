@@ -230,6 +230,16 @@ export const asyncRouterMap = [
         hidden: true
       },
       {
+        path: 'comment',
+        component: () => import('@/views/goods/comment'),
+        name: 'goodsComment',
+        meta: {
+          perms: ['GET /admin/comment/list', 'POST /admin/comment/delete'],
+          title: '商品评论',
+          noCache: true
+        }
+      },
+      {
         path: 'test',
         component: () => import('@/views/goods/test'),
         name: 'testList',
