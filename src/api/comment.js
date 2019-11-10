@@ -6,3 +6,11 @@ export function listComment (query) {
     method: 'get'
   })
 }
+
+export function deleteComment (data) {
+  return request({
+    url: '/comment/delete',
+    method: 'post',
+    data
+  })
+}
