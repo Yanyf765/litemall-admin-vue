@@ -250,6 +250,29 @@ export const asyncRouterMap = [
         }
       }
     ]
+  },
+  {
+    path: '/promotion',
+    component: layout,
+    redirect: 'noredirect',
+    alwaysShow: true,
+    name: 'promotionManage',
+    meta: {
+      title: '推广管理',
+      icon: 'chart'
+    },
+    children: [
+      {
+        path: 'ad',
+        component: () => import('@/views/promotion/ad'),
+        name: 'ad',
+        meta: {
+          perms: ['GET /admin/ad/list', 'POST /admin/ad/create', 'GET /admin/ad/read', 'POST /admin/ad/update', 'POST /admin/ad/delete'],
+          title: '广告管理',
+          noCache: true
+        }
+      }
+    ]
   }
 ]
 export default new Router({
